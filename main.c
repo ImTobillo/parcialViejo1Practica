@@ -139,6 +139,27 @@ void eliminarNodo (nodo** lista, char* dni)
     }
 }
 
+char* retornarDniMenor (nodo* lista)
+{
+    if (lista)
+    {
+        nodo* auxEdadM = lista;
+        lista = lista->sig;
+
+        while (lista)
+        {
+            if (lista->almn.p.edad < auxEdadM->almn.p.edad)
+                auxEdadM = lista;
+
+            lista = lista->sig;
+        }
+
+        return auxEdadM->almn.p.dni;
+    }
+    else
+        return "LISTA VACIA";
+}
+
 /// main
 
 int main()
@@ -155,6 +176,8 @@ int main()
     printf("\nLISTA DESPUES DE BORRAR\n\n");
 
     mostrarListaRec(listaAlumnos);
+
+    printf("El DNI del alumno de menor edad es: %s\n", retornarDniMenor(listaAlumnos));
 
     return 0;
 }
