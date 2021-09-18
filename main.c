@@ -72,12 +72,15 @@ void despersistirYAgregar (nodo** lista)
         while (fread(&pBuff, sizeof(Persona), 1, fpP) > 0)
         {
             almn.p = pBuff;
+            almn.prom_notas = 0;
 
             while (fread(&nBuff, sizeof(Nota), 1, fpN) > 0)
             {
                 if (strcmpi(nBuff.dni, almn.p.dni) == 0)
-                    almn.prom_notas += (float)nBuff.nota / 2;
+                    almn.prom_notas += nBuff.nota;
             }
+
+            almn.prom_notas /= 2;
 
             agregarNodoAlPrincipio(lista, almn);
 
@@ -91,6 +94,50 @@ void despersistirYAgregar (nodo** lista)
         printf("ERROR DE DATOS\n");
 }
 
+void mostrarAlumno (Alumno almn)
+{
+    printf("ALUMNO: %s\n", almn.p.nombre);
+    printf("DNI: %s\n", almn.p.dni);
+    printf("EDAD: %i\n", almn.p.edad);
+    printf("PROMEDIO NOTAS: %.2f\n\n", almn.prom_notas);
+}
+
+void mostrarListaRec (nodo* lista)
+{
+    if (lista)
+    {
+        mostrarAlumno(lista->almn);
+        mostrarListaRec(lista->sig);
+    }
+}
+
+void eliminarNodo (nodo** lista, char* dni)
+{
+    if (*lista)
+    {
+        nodo* ant = *lista, *act = (*lista)->sig;
+
+        if (strcmpi((*lista)->almn.p.dni, dni) == 0)
+        {
+            *lista = (*lista)->sig;
+            free(ant);
+        }
+        else
+        {
+            while (act && strcmpi(act->almn.p.dni, dni) != 0)
+            {
+                ant = act;
+                act = act->sig;
+            }
+
+            if (act)
+            {
+                ant->sig = act->sig;
+                free(act);
+            }
+        }
+    }
+}
 
 /// main
 
@@ -101,6 +148,13 @@ int main()
 
     despersistirYAgregar(&listaAlumnos);
 
+    mostrarListaRec(listaAlumnos);
+
+    eliminarNodo(&listaAlumnos, "28546987");
+
+    printf("\nLISTA DESPUES DE BORRAR\n\n");
+
+    mostrarListaRec(listaAlumnos);
 
     return 0;
 }
