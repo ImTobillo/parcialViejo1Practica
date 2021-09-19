@@ -31,11 +31,32 @@ typedef struct nodo
     struct nodo* sig;
 }nodo;
 
+typedef struct nodoD
+{
+    char dni[9];
+    struct nodoD* sig;
+    struct nodoD* ant;
+}nodoD;
+
 /// funciones
 
 void inicLista (nodo** lista)
 {
     *lista = NULL;
+}
+
+void inicListaD (nodoD** listaD)
+{
+    *listaD = NULL;
+}
+
+nodoD* crearNodoD (char* dni)
+{
+    nodoD* aux = (nodoD*)malloc(sizeof(nodoD));
+    strcpy(aux->dni, dni);
+    aux->sig = NULL;
+    aux->ant = NULL;
+    return aux;
 }
 
 nodo* crearNodo (Alumno almn)
@@ -44,6 +65,24 @@ nodo* crearNodo (Alumno almn)
     aux->almn = almn;
     aux->sig = NULL;
     return aux;
+}
+
+void agregarNodoDAlFinal(nodoD** listaD, char* dni)
+{
+    nodoD* auxAg = crearNodoD(dni);
+
+    if (*listaD)
+    {
+        nodoD* aux = *listaD;
+
+        while(aux->sig)
+            aux = aux->sig;
+
+        aux->sig = auxAg;
+        auxAg->ant = aux;
+    }
+    else
+        *listaD = auxAg;
 }
 
 void agregarNodoAlPrincipio (nodo** lista, Alumno almn)
@@ -157,7 +196,31 @@ char* retornarDniMenor (nodo* lista)
         return auxEdadM->almn.p.dni;
     }
     else
-        return "LISTA VACIA";
+        return NULL;
+}
+
+void pasarDnisADoble (nodo** lista, nodoD** listaD)
+{
+    char dniAux[9];
+
+    while (*lista)
+    {
+        strcpy(dniAux, retornarDniMenor(*lista));
+        eliminarNodo(lista, dniAux);
+
+        agregarNodoDAlFinal(listaD, dniAux);
+    }
+}
+
+void mostrarListaDnis (nodoD* listaDnis)
+{
+    nodoD* aux = listaDnis;
+
+    while (aux)
+    {
+        printf("%s\t", aux->dni);
+        aux = aux->sig;
+    }
 }
 
 /// main
@@ -171,7 +234,7 @@ int main()
 
     mostrarListaRec(listaAlumnos);
 
-    eliminarNodo(&listaAlumnos, "28546987");
+    //eliminarNodo(&listaAlumnos, "28546987");
 
     printf("\nLISTA DESPUES DE BORRAR\n\n");
 
@@ -179,5 +242,11 @@ int main()
 
     printf("El DNI del alumno de menor edad es: %s\n", retornarDniMenor(listaAlumnos));
 
+    nodoD* listaDnis;
+    inicListaD(&listaDnis);
+
+    pasarDnisADoble(&listaAlumnos, &listaDnis);
+
+    mostrarListaDnis(listaDnis);
     return 0;
 }
